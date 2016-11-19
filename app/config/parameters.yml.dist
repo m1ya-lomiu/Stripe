@@ -20,3 +20,5 @@ parameters:
 
     stripe_secret_key: sk_test_XXX
     stripe_public_key: pk_test_XXX
+
+    secure_channel: http
