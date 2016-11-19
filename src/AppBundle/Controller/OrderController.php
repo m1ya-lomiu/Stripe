@@ -57,12 +57,20 @@ class OrderController extends BaseController
                 $customer->save();
             }
 
-            \Stripe\Charge::create(array(
-                "amount" => $this->get('shopping_cart')->getTotal() * 100,
-                "currency" => "aud",
-                'customer' => $user->getStripeCustomerId(),
-                "description" => "First test charge"
-            ));
+            foreach ($this->get('shopping_cart')->getProducts() as $product) {
+                \Stripe\InvoiceItem::create(array(
+                    "amount" => $product->getPrice() * 100,
+                    "currency" => "aud",
+                    'customer' => $user->getStripeCustomerId(),
+                    "description" => $product->getName()
+                ));
+            }
+
+            $invoice = \Stripe\Invoice::create([
+                'customer' => $user->getStripeCustomerId()
+            ]);
+
+            $invoice->pay();
 
             $this->get('shopping_cart')->emptyCart();
             $this->addFlash('success', 'Order complete. Yayyy!');
